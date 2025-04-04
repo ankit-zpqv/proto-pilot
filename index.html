@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URL Input - JSON Previewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        display: flex; /* Add Flexbox */
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+        min-height: 100vh; /* Ensure the body takes full viewport height */
+        margin: 0; /* Remove default margin */
+        background-color: #f9fafb; /* Optional: Slightly lighter background */
+      }
+
+      .url-input:focus {
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+      }
+
+      .loader {
+        display: none;
+        border: 2px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 2px solid #3b82f6;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gray-50">
+    <!-- Main Content -->
+    <main class="max-w-7xl min-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="bg-white rounded-lg shadow-sm p-6 sm:p-8">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-semibold text-gray-900 mb-2">
+            Preview Your App
+          </h1>
+          <p class="text-gray-600">
+            Paste the link to your app's JSON definition to see how it looks.
+          </p>
+        </div>
+
+        <form id="urlForm" class="space-y-6">
+          <div>
+            <label
+              for="url"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Enter URL
+            </label>
+            <input
+              type="url"
+              id="url"
+              name="url"
+              class="url-input block w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none transition duration-150 ease-in-out"
+              placeholder="https://example.com/data.json"
+              required
+            />
+          </div>
+
+          <div id="errorContainer" class="hidden">
+            <p class="text-red-600 text-sm"></p>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+          >
+            <span>Preview</span>
+            <div class="loader ml-2"></div>
+          </button>
+        </form>
+      </div>
+    </main>
+
+    <script>
+      document
+        .getElementById("urlForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const urlInput = document.getElementById("url");
+          const errorContainer = document.getElementById("errorContainer");
+          const errorText = errorContainer.querySelector("p");
+          const loader = document.querySelector(".loader");
+          const submitButton = document.querySelector('button[type="submit"]');
+          const buttonText = submitButton.querySelector("span");
+
+          // Reset error state
+          errorContainer.classList.add("hidden");
+
+          // URL validation
+          try {
+            new URL(urlInput.value);
+          } catch {
+            errorContainer.classList.remove("hidden");
+            errorText.textContent = "Please enter a valid URL";
+            return;
+          }
+
+          // Show loading state
+          loader.style.display = "block";
+          buttonText.textContent = "Loading...";
+          submitButton.disabled = true;
+
+          try {
+            // Simulate API call with timeout
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            // Redirect to preview page with URL parameter
+            window.location.href = `preview-pages.html?url=${encodeURIComponent(
+              urlInput.value
+            )}`;
+          } catch (error) {
+            errorContainer.classList.remove("hidden");
+            errorText.textContent = "An error occurred. Please try again.";
+          } finally {
+            // Reset loading state
+            loader.style.display = "none";
+            buttonText.textContent = "Fetch JSON";
+            submitButton.disabled = false;
+          }
+        });
+    </script>
+  </body>
+</html>
