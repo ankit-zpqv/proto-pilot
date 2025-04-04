@@ -1,35 +1,110 @@
-<!-- preview-pages.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Preview Pages</title>
+    <title>JSON Previewer</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eef2ff",
+                100: "#e0e7ff",
+                200: "#c7d2fe",
+                300: "#a5b4fc",
+                400: "#818cf8",
+                500: "#6366f1",
+                600: "#4f46e5",
+                700: "#4338ca",
+                800: "#3730a3",
+                900: "#312e81",
+                950: "#1e1b4b",
+              },
+              secondary: {
+                50: "#ecfeff",
+                100: "#cffafe",
+                200: "#a5f3fc",
+                300: "#67e8f9",
+                400: "#22d3ee",
+                500: "#06b6d4",
+                600: "#0891b2",
+                700: "#0e7490",
+                800: "#155e75",
+                900: "#164e63",
+                950: "#083344",
+              },
+            },
+            boxShadow: {
+              soft: "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
+              card: "0 7px 30px -10px rgba(150,170,180,0.3)",
+            },
+            animation: {
+              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            },
+          },
+        },
+      };
+    </script>
     <!-- Add Inter font for better typography -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
       body {
         font-family: "Inter", sans-serif;
+        background-color: #f8fafc;
+        background-image: radial-gradient(
+            at 40% 20%,
+            hsla(217, 100%, 96%, 1) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 80% 0%,
+            hsla(189, 100%, 96%, 1) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 0% 50%,
+            hsla(355, 100%, 97%, 0.3) 0px,
+            transparent 50%
+          );
+        background-attachment: fixed;
+        color: #334155;
       }
+
       .preview-frame {
         width: 100%;
-        height: 600px;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        height: calc(100vh - 130px);
+        min-height: 500px;
+        border: 1px solid rgba(229, 231, 235, 0.5);
+        border-radius: 12px;
         background: white;
+        box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
       }
+
+      .preview-frame:hover {
+        box-shadow: 0 8px 30px -5px rgba(0, 0, 0, 0.1);
+      }
+
       .loading-spinner {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #3b82f6;
+        border: 3px solid rgba(99, 102, 241, 0.1);
+        border-top: 3px solid #6366f1;
+        border-right: 3px solid #6366f1;
         border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        animation: spin 1s linear infinite;
+        width: 28px;
+        height: 28px;
+        animation: spin 0.8s linear infinite;
       }
+
       @keyframes spin {
         0% {
           transform: rotate(0deg);
@@ -38,23 +113,100 @@
           transform: rotate(360deg);
         }
       }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+      }
+
+      .preview-tab {
+        position: relative;
+        transition: all 0.2s ease;
+        border-left: 2px solid transparent;
+      }
+
+      .preview-tab:hover {
+        border-left-color: rgba(99, 102, 241, 0.3);
+      }
+
+      .preview-tab.active {
+        border-left-color: #6366f1;
+        background-color: rgba(99, 102, 241, 0.05);
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   </head>
-  <body class="bg-gray-50 min-h-screen">
+  <body class="min-h-screen">
     <!-- Navigation -->
-    <header class="bg-white shadow-sm">
+    <header
+      class="bg-white bg-opacity-90 backdrop-blur-sm shadow-soft sticky top-0 z-10"
+    >
       <nav
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
       >
         <div class="flex items-center">
-          <div class="logo font-bold text-blue-600 text-xl">App Preview</div>
+          <a href="index.html" class="flex items-center space-x-2">
+            <div
+              class="h-9 w-9 rounded-lg bg-primary-50 flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-primary-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <div class="logo font-bold gradient-text text-xl">
+              JSON Previewer
+            </div>
+          </a>
         </div>
         <div class="flex space-x-4">
           <a
-            href="/index.html"
-            class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-            >Home</a
+            href="index.html"
+            class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 12l2-2m0 0l7-7 7 7m-14 0l2 2m0 0l7 7 7-7m-14 0l2-2"
+              />
+            </svg>
+            Home
+          </a>
         </div>
       </nav>
     </header>
@@ -64,32 +216,67 @@
       <!-- Loading State -->
       <div
         id="loadingState"
-        class="hidden flex items-center justify-center p-8"
+        class="hidden flex flex-col items-center justify-center p-12"
       >
-        <div class="loading-spinner"></div>
-        <span class="ml-3 text-gray-600">Loading previews...</span>
+        <div class="loading-spinner mb-4"></div>
+        <span class="text-gray-600 font-medium">Loading previews...</span>
+        <p class="text-gray-500 text-sm mt-2">
+          This may take a moment depending on the complexity of your JSON
+        </p>
       </div>
 
       <!-- Error Message -->
       <div
         id="errorMessage"
-        class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6"
+        class="hidden bg-red-50 border border-red-100 text-red-700 px-6 py-4 rounded-xl mb-8 shadow-sm max-w-3xl mx-auto"
       >
-        Failed to load preview. Please check the URL and try again.
-      </div>
-
-      <!-- Preview Navigation -->
-      <div id="previewNav" class="hidden mb-6">
-        <div class="border-b border-gray-200">
-          <nav class="flex space-x-8" aria-label="Preview navigation">
-            <!-- Preview tabs will be inserted here -->
-          </nav>
+        <div class="flex items-start">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-red-500 mt-0.5 mr-3 flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div>
+            <h3 class="font-medium mb-1">Failed to load preview</h3>
+            <p class="text-sm">
+              Please check that the URL points to a valid JSON file and try
+              again.
+            </p>
+          </div>
         </div>
       </div>
 
-      <!-- Preview Container -->
-      <div id="previewContainer" class="hidden">
-        <!-- Preview frames will be inserted here -->
+      <!-- Side-by-side Layout Container -->
+      <div class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
+        <!-- Preview Navigation (Left Side) -->
+        <div
+          id="previewNav"
+          class="hidden lg:w-64 w-full bg-white bg-opacity-90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 h-fit"
+        >
+          <div class="border-b border-gray-200 px-4 py-3">
+            <h3 class="font-medium text-gray-700">Pages</h3>
+          </div>
+          <nav class="flex flex-col py-2" aria-label="Preview navigation">
+            <!-- Preview tabs will be inserted here -->
+          </nav>
+        </div>
+
+        <!-- Preview Container (Right Side) -->
+        <div
+          id="previewContainer"
+          class="hidden flex-1 bg-white bg-opacity-90 backdrop-blur-sm rounded-xl shadow-card border border-gray-100 fade-in"
+        >
+          <!-- Preview frames will be inserted here -->
+        </div>
       </div>
     </main>
 
@@ -119,11 +306,16 @@
               (page, index) => `
                     <button class="preview-tab ${
                       index === 0
-                        ? "border-b-2 border-blue-600 text-blue-600"
+                        ? "active text-primary-600 font-medium"
                         : "text-gray-500"
-                    } 
-                        whitespace-nowrap py-4 px-1 font-medium text-sm"
+                    }
+                        w-full text-left py-3 px-4 text-sm transition-all duration-200 hover:bg-gray-50 flex items-center"
                         onclick="switchPreview('${page.pageName}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 ${
+                          index === 0 ? "text-primary-500" : "text-gray-400"
+                        }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
                         ${page.pageName}
                     </button>
                 `
@@ -147,7 +339,7 @@
                     <div id="preview-${
                       page.pageName
                     }" class="preview-frame-container ${
-                  page.pageName === data[0].pageName ? "" : "hidden"
+                  page.pageName === data[0].pageName ? "fade-in" : "hidden"
                 }">
                         <iframe
                             class="preview-frame"
@@ -168,6 +360,11 @@
 
           previewNav.classList.remove("hidden");
           previewContainer.classList.remove("hidden");
+
+          // Add a subtle entrance animation
+          setTimeout(() => {
+            previewContainer.classList.add("fade-in");
+          }, 100);
         } catch (error) {
           errorMessage.classList.remove("hidden");
           console.error("Error:", error);
@@ -179,35 +376,53 @@
       function switchPreview(pageName) {
         // Update tab styles
         document.querySelectorAll(".preview-tab").forEach((tab) => {
-          tab.classList.remove(
-            "border-b-2",
-            "border-blue-600",
-            "text-blue-600"
-          );
+          tab.classList.remove("active", "text-primary-600", "font-medium");
           tab.classList.add("text-gray-500");
+
+          // Update icon color
+          const icon = tab.querySelector("svg");
+          if (icon) {
+            icon.classList.remove("text-primary-500");
+            icon.classList.add("text-gray-400");
+          }
         });
+
         const activeTab = document.querySelector(
           `[onclick="switchPreview('${pageName}')"]`
         );
-        activeTab.classList.add(
-          "border-b-2",
-          "border-blue-600",
-          "text-blue-600"
-        );
+
+        activeTab.classList.add("active", "text-primary-600", "font-medium");
         activeTab.classList.remove("text-gray-500");
 
-        // Show selected preview
+        // Update icon color
+        const activeIcon = activeTab.querySelector("svg");
+        if (activeIcon) {
+          activeIcon.classList.remove("text-gray-400");
+          activeIcon.classList.add("text-primary-500");
+        }
+
+        // Show selected preview with animation
         document
           .querySelectorAll(".preview-frame-container")
           .forEach((container) => {
             container.classList.add("hidden");
+            container.classList.remove("fade-in");
           });
-        document
-          .getElementById(`preview-${pageName}`)
-          .classList.remove("hidden");
+
+        const selectedContainer = document.getElementById(
+          `preview-${pageName}`
+        );
+        selectedContainer.classList.remove("hidden");
+
+        // Trigger reflow for animation
+        void selectedContainer.offsetWidth;
+        selectedContainer.classList.add("fade-in");
       }
 
-      fetchPreview();
+      // Initialize tooltips
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchPreview();
+      });
     </script>
   </body>
 </html>

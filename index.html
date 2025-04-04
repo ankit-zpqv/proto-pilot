@@ -3,33 +3,104 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>URL Input - JSON Previewer</title>
+    <title>JSON Previewer</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eef2ff",
+                100: "#e0e7ff",
+                200: "#c7d2fe",
+                300: "#a5b4fc",
+                400: "#818cf8",
+                500: "#6366f1",
+                600: "#4f46e5",
+                700: "#4338ca",
+                800: "#3730a3",
+                900: "#312e81",
+                950: "#1e1b4b",
+              },
+              secondary: {
+                50: "#ecfeff",
+                100: "#cffafe",
+                200: "#a5f3fc",
+                300: "#67e8f9",
+                400: "#22d3ee",
+                500: "#06b6d4",
+                600: "#0891b2",
+                700: "#0e7490",
+                800: "#155e75",
+                900: "#164e63",
+                950: "#083344",
+              },
+            },
+            boxShadow: {
+              soft: "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
+              card: "0 7px 30px -10px rgba(150,170,180,0.3)",
+            },
+            animation: {
+              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            },
+          },
+        },
+      };
+    </script>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
       body {
         font-family: "Inter", sans-serif;
-        display: flex; /* Add Flexbox */
-        justify-content: center; /* Center horizontally */
-        align-items: center; /* Center vertically */
-        min-height: 100vh; /* Ensure the body takes full viewport height */
-        margin: 0; /* Remove default margin */
-        background-color: #f9fafb; /* Optional: Slightly lighter background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f8fafc;
+        background-image: radial-gradient(
+            at 40% 20%,
+            hsla(217, 100%, 96%, 1) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 80% 0%,
+            hsla(189, 100%, 96%, 1) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 0% 50%,
+            hsla(355, 100%, 97%, 0.3) 0px,
+            transparent 50%
+          );
+        background-attachment: fixed;
+        color: #334155;
       }
 
       .url-input:focus {
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        border-color: #6366f1;
+        outline: none;
+      }
+
+      .url-input {
+        transition: all 0.2s ease-in-out;
       }
 
       .loader {
         display: none;
-        border: 2px solid #f3f3f3;
+        border: 2px solid rgba(99, 102, 241, 0.1);
         border-radius: 50%;
-        border-top: 2px solid #3b82f6;
+        border-top: 2px solid #6366f1;
+        border-right: 2px solid #6366f1;
         width: 20px;
         height: 20px;
-        animation: spin 1s linear infinite;
+        animation: spin 0.8s linear infinite;
       }
 
       @keyframes spin {
@@ -40,55 +111,163 @@
           transform: rotate(360deg);
         }
       }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+      }
+
+      .card-hover {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      }
+
+      .card-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-primary {
+        background-image: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+        transition: all 0.2s ease-in-out;
+      }
+
+      .btn-primary:hover {
+        background-image: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
     </style>
   </head>
-  <body class="min-h-screen bg-gray-50">
+  <body>
     <!-- Main Content -->
-    <main class="max-w-7xl min-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="bg-white rounded-lg shadow-sm p-6 sm:p-8">
-        <div class="text-center mb-8">
-          <h1 class="text-3xl font-semibold text-gray-900 mb-2">
+    <main class="w-full max-w-4xl mx-auto px-4 sm:px-6 py-12">
+      <div
+        class="bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl shadow-card p-8 sm:p-10 card-hover"
+      >
+        <div class="text-center mb-10">
+          <div class="flex justify-center mb-4">
+            <div
+              class="h-16 w-16 rounded-full bg-primary-50 flex items-center justify-center mb-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-8 w-8 text-primary-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+          </div>
+          <h1 class="text-4xl font-bold mb-3 gradient-text">
             Preview Your App
           </h1>
-          <p class="text-gray-600">
-            Paste the link to your app's JSON definition to see how it looks.
+          <p class="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+            Paste the link to your app's JSON definition to see how it looks in
+            our interactive previewer.
           </p>
         </div>
 
-        <form id="urlForm" class="space-y-6">
+        <form id="urlForm" class="space-y-6 max-w-2xl mx-auto">
           <div>
             <label
               for="url"
-              class="block text-sm font-medium text-gray-700 mb-2"
+              class="block text-sm font-medium text-gray-700 mb-2 ml-1"
             >
-              Enter URL
+              JSON URL
             </label>
-            <input
-              type="url"
-              id="url"
-              name="url"
-              class="url-input block w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none transition duration-150 ease-in-out"
-              placeholder="https://example.com/data.json"
-              required
-            />
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                  />
+                </svg>
+              </div>
+              <input
+                type="url"
+                id="url"
+                name="url"
+                class="url-input block w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-300 bg-white bg-opacity-80 backdrop-blur-sm text-gray-700 focus:outline-none transition duration-200 ease-in-out"
+                placeholder="https://example.com/data.json"
+                required
+              />
+            </div>
           </div>
 
-          <div id="errorContainer" class="hidden">
-            <p class="text-red-600 text-sm"></p>
+          <div
+            id="errorContainer"
+            class="hidden bg-red-50 border border-red-100 text-red-600 rounded-lg px-4 py-3 text-sm"
+          >
+            <div class="flex">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-red-500 mr-2 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p></p>
+            </div>
           </div>
 
           <button
             type="submit"
-            class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+            class="btn-primary w-full flex items-center justify-center px-6 py-3.5 border border-transparent text-base font-medium rounded-xl text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-200 ease-in-out mt-8"
           >
-            <span>Preview</span>
+            <span>Generate Preview</span>
             <div class="loader ml-2"></div>
           </button>
         </form>
       </div>
+
+      <div class="text-center mt-8 text-sm text-gray-500">
+        <p>Enter any valid JSON URL to see a beautiful preview of your app</p>
+      </div>
     </main>
 
     <script>
+      // Add input animation effects
+      const urlInput = document.getElementById("url");
+      urlInput.addEventListener("focus", () => {
+        urlInput.parentElement.classList.add("ring-2", "ring-primary-100");
+      });
+      urlInput.addEventListener("blur", () => {
+        urlInput.parentElement.classList.remove("ring-2", "ring-primary-100");
+      });
+
+      // Form submission handler
       document
         .getElementById("urlForm")
         .addEventListener("submit", async (e) => {
@@ -115,10 +294,15 @@
 
           // Show loading state
           loader.style.display = "block";
-          buttonText.textContent = "Loading...";
+          buttonText.textContent = "Processing...";
           submitButton.disabled = true;
+          submitButton.classList.add("opacity-90");
 
           try {
+            // Add a subtle animation to the card during loading
+            const card = document.querySelector(".card-hover");
+            card.classList.add("animate-pulse-slow");
+
             // Simulate API call with timeout
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -129,11 +313,16 @@
           } catch (error) {
             errorContainer.classList.remove("hidden");
             errorText.textContent = "An error occurred. Please try again.";
+
+            // Remove animation
+            const card = document.querySelector(".card-hover");
+            card.classList.remove("animate-pulse-slow");
           } finally {
             // Reset loading state
             loader.style.display = "none";
-            buttonText.textContent = "Fetch JSON";
+            buttonText.textContent = "Generate Preview";
             submitButton.disabled = false;
+            submitButton.classList.remove("opacity-90");
           }
         });
     </script>
