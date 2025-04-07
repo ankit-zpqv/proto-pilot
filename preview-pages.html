@@ -298,7 +298,8 @@
         try {
           const response = await fetch(url);
           if (!response.ok) throw new Error("Network response was not ok");
-          const data = await response.json();
+          const res = await response.json();
+          const data = res.root.pages;
 
           // Create preview tabs and containers
           const navHtml = data
