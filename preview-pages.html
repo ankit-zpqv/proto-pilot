@@ -344,8 +344,9 @@
                 }">
                         <iframe
                             class="preview-frame"
-                            sandbox="allow-scripts"
-                            srcdoc="${escapedForAttribute}">
+                            sandbox="allow-scripts allow-same-origin"
+                            srcdoc="${escapedForAttribute}"
+                            onload="preventIframeNavigation(this)">
                         </iframe>
                     </div>
                 `;
@@ -420,7 +421,39 @@
         selectedContainer.classList.add("fade-in");
       }
 
-      // Initialize tooltips
+      // Prevent navigation within iframes
+      function preventIframeNavigation(iframe) {
+        try {
+          const iframeWindow = iframe.contentWindow;
+
+          // Try to intercept clicks on links
+          iframeWindow.document.addEventListener(
+            "click",
+            function (e) {
+              const target = e.target.closest("a");
+              if (target && target.href && !target.href.startsWith("#")) {
+                e.preventDefault();
+                return false;
+              }
+            },
+            true
+          );
+
+          // Disable form submissions
+          iframeWindow.document.addEventListener(
+            "submit",
+            function (e) {
+              e.preventDefault();
+              return false;
+            },
+            true
+          );
+        } catch (error) {
+          console.warn("Could not fully secure iframe navigation:", error);
+        }
+      }
+
+      // Initialize
       document.addEventListener("DOMContentLoaded", function () {
         fetchPreview();
       });
